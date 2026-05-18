@@ -44,6 +44,8 @@ pnpm-debug.log*
 !/storage/logs/.gitignore
 /storage/app/public/*
 !/storage/app/public/.gitignore
+/storage/app/diario/
+/storage/app/financeiro/
 /storage/workerman/
 
 # ─── Workerman (local) ───
