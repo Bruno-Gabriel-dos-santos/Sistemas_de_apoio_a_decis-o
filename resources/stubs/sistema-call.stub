@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * Este script mostra como montar um payload (array) e enviar para a API usando cURL.
+ * Execute: php chamada.php
+ */
+
+$helpers = __DIR__ . '/helpers.php';
+if (!file_exists($helpers)) {
+    exit("helpers.php não encontrado.\n");
+}
+
+require_once $helpers;
+
+$payload = [
+    'id' => API_SYSTEM_ID,
+    'action' => 'demo_call',
+    'payload' => [
+        'message' => 'Hello World',
+        'timestamp' => date(DATE_ATOM),
+    ],
+];
+
+echo "Enviando payload:\n";
+print_r($payload);
+
+$response = api_curl_request('POST', API_ENDPOINT, $payload);
+
+echo "\nResposta:\n";
+print_r($response);
+

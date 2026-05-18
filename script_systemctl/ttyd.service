@@ -1,0 +1,17 @@
+[Unit]
+Description=ttyd Web Terminal
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bruno
+Group=bruno
+ExecStart=/var/www/Sitemas/script_systemctl/run-ttyd.sh
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,3 @@
+sudo ttyd --writable -p 7681 bash
+
+executar na pasta principal

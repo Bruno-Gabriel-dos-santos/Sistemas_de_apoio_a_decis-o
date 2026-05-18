@@ -1,0 +1,184 @@
+<?php
+
+if (!defined('API_ENDPOINT')) {
+    define('API_ENDPOINT', '{{endpoint}}');
+}
+
+if (!defined('API_SYSTEM_ID')) {
+    define('API_SYSTEM_ID', {{system_id}});
+}
+
+if (!defined('API_BASE_URL')) {
+    define('API_BASE_URL', '{{base_url}}');
+}
+
+if (!defined('API_SECRET_KEY')) {
+    define('API_SECRET_KEY', '{{api_secret}}');
+}
+if (!defined('API_SECRET_EXPIRES_AT')) {
+    define('API_SECRET_EXPIRES_AT', '{{api_secret_expires_at}}'); // Informativo
+}
+
+if (!defined('API_DB_CONFIG')) {
+    define('API_DB_CONFIG', [
+        'host' => '{{db_host}}',
+        'database' => '{{db_name}}',
+        'username' => '{{db_username}}',
+        'password' => '{{db_password}}',
+        'charset' => 'utf8mb4',
+    ]);
+}
+
+/**
+ * Cabeçalhos padrão para chamadas HTTP.
+ */
+function api_base_headers(array $extra = []): array
+{
+    return array_merge([
+        'Content-Type: application/json',
+        'X-API-KEY: ' . API_SECRET_KEY,
+    ], $extra);
+}
+
+/**
+ * Cliente cURL genérico.
+ */
+function api_curl_request(string $method, string $url, array $data = []): array
+{
+    $method = strtoupper($method);
+    $ch = curl_init();
+
+    if ($method === 'GET' && !empty($data)) {
+        $query = http_build_query($data);
+        $url .= (str_contains($url, '?') ? '&' : '?') . $query;
+    }
+
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => api_base_headers(),
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_CUSTOMREQUEST => $method,
+    ]);
+
+    if ($method !== 'GET') {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    }
+
+    $body = curl_exec($ch);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    if ($error) {
+        return ['error' => $error];
+    }
+
+    $decoded = json_decode($body, true);
+    return $decoded ?? ['raw' => $body];
+}
+
+/**
+ * Chamada POST para o endpoint padrão (dinamic-api).
+ */
+function api_curl_post(array $payload = [], string $endpoint = API_ENDPOINT): array
+{
+    $body = array_merge([
+        'id' => API_SYSTEM_ID,
+        'nonce' => bin2hex(random_bytes(8)),
+        'timestamp' => date(DATE_ATOM),
+    ], $payload);
+
+    return api_curl_request('POST', $endpoint, $body);
+}
+
+/**
+ * Chamada GET para o endpoint padrão.
+ */
+function api_curl_get(array $query = [], string $endpoint = API_ENDPOINT): array
+{
+    $base = array_merge(['id' => API_SYSTEM_ID], $query);
+    return api_curl_request('GET', $endpoint, $base);
+}
+
+/**
+ * Invoca uma rota interna (ex.: /api/alguma-rota) usando o mesmo segredo.
+ */
+function api_call_route(string $route, array $payload = [], string $method = 'POST'): array
+{
+    $url = rtrim(API_BASE_URL, '/') . '/' . ltrim($route, '/');
+    return api_curl_request($method, $url, $payload);
+}
+
+/**
+ * Utilidades de base64.
+ */
+function api_base64_encode(string $value): string
+{
+    return base64_encode($value);
+}
+
+function api_base64_decode(string $value): string
+{
+    return base64_decode($value, true) ?: '';
+}
+
+/**
+ * Criptografia simétrica simples (AES-256-CBC).
+ */
+function api_encrypt(string $plaintext, string $secret = API_SECRET_KEY): string
+{
+    $iv = substr(hash('sha256', $secret, true), 0, 16);
+    $cipher = openssl_encrypt($plaintext, 'AES-256-CBC', $secret, OPENSSL_RAW_DATA, $iv);
+    return base64_encode($cipher ?: '');
+}
+
+function api_decrypt(string $ciphertext, string $secret = API_SECRET_KEY): string
+{
+    $iv = substr(hash('sha256', $secret, true), 0, 16);
+    $decoded = base64_decode($ciphertext, true);
+    if ($decoded === false) {
+        return '';
+    }
+    return openssl_decrypt($decoded, 'AES-256-CBC', $secret, OPENSSL_RAW_DATA, $iv) ?: '';
+}
+
+/**
+ * Helper para responder dentro do Laravel.
+ */
+function api_response(array $data = [], int $status = 200)
+{
+    return response()->json($data, $status);
+}
+
+/**
+ * PDO reutilizável com as credenciais dedicadas.
+ */
+function api_db(): \PDO
+{
+    static $pdo = null;
+    if ($pdo) {
+        return $pdo;
+    }
+
+    $cfg = API_DB_CONFIG;
+    $dsn = sprintf(
+        'mysql:host=%s;dbname=%s;charset=%s',
+        $cfg['host'],
+        $cfg['database'],
+        $cfg['charset']
+    );
+
+    $pdo = new \PDO($dsn, $cfg['username'], $cfg['password'], [
+        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+    ]);
+
+    return $pdo;
+}
+
+function api_db_query(string $sql, array $params = []): array
+{
+    $stmt = api_db()->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+}
+

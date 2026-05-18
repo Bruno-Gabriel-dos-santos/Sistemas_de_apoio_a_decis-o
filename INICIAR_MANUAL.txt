@@ -1,0 +1,68 @@
+============================================================
+COMANDOS PARA INICIAR WORKERS MANUALMENTE
+============================================================
+
+Abra 4 terminais diferentes e execute um comando em cada:
+
+TERMINAL 1 - Worker 1 (porta 20001):
+-----------------------------------------------------------
+cd /home/bruno/Sistemas_De_Apoio/Sistemas_de_Apoio_10
+php artisan websocket:start --port=20001
+
+
+TERMINAL 2 - Worker 2 (porta 20010):
+-----------------------------------------------------------
+cd /home/bruno/Sistemas_De_Apoio/Sistemas_de_Apoio_10
+php artisan websocket:start --port=20010
+
+
+TERMINAL 3 - Worker 3 (porta 20020):
+-----------------------------------------------------------
+cd /home/bruno/Sistemas_De_Apoio/Sistemas_de_Apoio_10
+php artisan websocket:start --port=20020
+
+
+TERMINAL 4 - Worker 4 (porta 20040):
+-----------------------------------------------------------
+cd /home/bruno/Sistemas_De_Apoio/Sistemas_de_Apoio_10
+php artisan websocket:start --port=20040
+
+
+TERMINAL 5 - Gerenciador Central (OPCIONAL):
+-----------------------------------------------------------
+cd /home/bruno/Sistemas_De_Apoio/Sistemas_de_Apoio_10
+php artisan writer:central
+
+
+============================================================
+VERIFICAR SE ESTÁ RODANDO:
+============================================================
+lsof -i :20001
+lsof -i :20010
+lsof -i :20020
+lsof -i :20030
+
+
+============================================================
+PARAR OS SERVIÇOS:
+============================================================
+# Opção 1: Ctrl+C em cada terminal
+# Opção 2: Comandos para parar por porta:
+
+lsof -ti:20001 | xargs kill -9
+lsof -ti:20010 | xargs kill -9
+lsof -ti:20020 | xargs kill -9
+lsof -ti:20030 | xargs kill -9
+
+
+============================================================
+VERIFICAR LOGS (se iniciar em background):
+============================================================
+tail -f storage/logs/websocket-worker-1.log
+tail -f storage/logs/websocket-worker-2.log
+tail -f storage/logs/websocket-worker-3.log
+tail -f storage/logs/websocket-worker-4.log
+tail -f storage/logs/central-writer.log
+
+============================================================
+

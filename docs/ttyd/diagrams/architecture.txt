@@ -1,0 +1,72 @@
+Arquitetura do TTY Web Service
+============================
+
++----------------------+     HTTP/WS     +-------------+     PTY     +-----------------+
+|                      |  ------------>  |             |  ------->  |                 |
+|  Browser (Cliente)   |                 |    TTYD     |            |  Shell (bash)   |
+|                      |  <------------  |             |  <-------  |                 |
++----------------------+     WebSocket   +-------------+     I/O    +-----------------+
+         ^                       |              |
+         |                       |              |
+         |                       v              v
++----------------------+  +-------------+  +-----------+
+|                      |  |             |  |           |
+|  Laravel Frontend    |  | Systemd     |  |  Logs     |
+|  (Terminal View)     |  | Service     |  |           |
++----------------------+  +-------------+  +-----------+
+
+Fluxo de Dados
+=============
+
+1. Cliente (Browser)
+   |
+   +-> Requisição HTTP para Laravel
+   |   |
+   |   +-> Carrega view do terminal
+   |   |
+   |   +-> Estabelece conexão WebSocket
+   |
+   +-> WebSocket conecta ao TTYD
+       |
+       +-> TTYD cria sessão PTY
+           |
+           +-> Shell processa comandos
+           |
+           +-> Output retorna ao cliente
+
+Componentes
+==========
+
+[Browser]
+  |
+  +-- index.blade.php (View)
+  +-- JavaScript (Conexão WebSocket)
+  +-- CSS (Estilização)
+
+[TTYD]
+  |
+  +-- Serviço Systemd
+  |   |
+  |   +-- ttyd.service
+  |   +-- Logs do sistema
+  |
+  +-- Configuração
+      |
+      +-- ttyd.conf
+      +-- Permissões
+      +-- SSL/TLS
+
+[Shell]
+  |
+  +-- Bash
+  +-- Ambiente
+  +-- Permissões
+
+Segurança
+========
+
+[Firewall] --> [SSL/TLS] --> [Autenticação] --> [TTYD] --> [Shell]
+   ^            ^             ^
+   |            |             |
+   +------------+-------------+
+        Camadas de Proteção 

@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * Script de exemplo para testar a API deste sistema via CLI.
+ * Execute: php client-example.php
+ */
+
+$helpers = __DIR__ . '/helpers.php';
+if (!file_exists($helpers)) {
+    exit("helpers.php não encontrado. Verifique se o sistema foi configurado corretamente.\n");
+}
+
+require_once $helpers;
+
+$payload = [
+    'action' => 'ping',
+    'payload' => [
+        'message' => 'Hello World',
+    ],
+];
+
+$response = api_curl_post($payload);
+
+echo "Resposta da API:\n";
+print_r($response);
+

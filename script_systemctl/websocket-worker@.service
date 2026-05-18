@@ -1,0 +1,19 @@
+[Unit]
+Description=Laravel WebSocket Worker (%i)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bruno
+Group=bruno
+WorkingDirectory=/var/www/Sitemas
+ExecStart=/var/www/Sitemas/script_systemctl/run-websocket-worker.sh %i
+Environment=APP_ROOT=/var/www/Sitemas
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+<?php
+
+$helpers = __DIR__ . '/helpers.php';
+if (file_exists($helpers)) {
+    require_once $helpers;
+}
+
+/** @var array $input Dados recebidos no POST /api/dinamic-api */
+/** @var int $id ID do sistema */
+
+return api_response([
+    'message' => 'Hello World from {{system_name}}',
+    'system_id' => $id,
+    'payload_received' => $input,
+    'documentation' => '{{readme_path}}',
+]);
+

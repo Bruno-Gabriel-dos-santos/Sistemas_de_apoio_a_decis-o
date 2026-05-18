@@ -1,0 +1,25 @@
+[Unit]
+Description=Workerman WebSocket Worker porta 20020
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bruno
+Group=bruno
+WorkingDirectory=/var/www/Sitemas
+Environment=APP_ROOT=/var/www/Sitemas
+ExecStart=/var/www/Sitemas/script_worker_systemctl/run-workerman-worker.sh 20020
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+
+

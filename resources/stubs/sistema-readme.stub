@@ -1,0 +1,113 @@
+# {{system_name}} – Guia Rápido
+
+- **ID:** {{system_id}}
+- **Endpoint:** `POST {{endpoint}}`
+- **API Key (X-API-KEY):** `{{api_secret}}`
+- **Validade:** {{api_secret_validity}}
+- **Criado em:** {{created_at}}
+
+---
+
+## Estrutura do diretório
+
+```
+start.php            # Ponto de entrada (inclui helpers.php)
+helpers.php          # Funções utilitárias (cURL, criptografia, etc.)
+client-example.php   # Script PHP pronto para testar o endpoint
+chamada.php          # Exemplo simples montando payload em array e enviando via cURL
+README.md            # Este guia
+```
+
+### chamada.php
+
+```bash
+php chamada.php
+```
+
+Organize o payload no array `$payload` e o script já envia via cURL com os headers corretos.
+
+---
+
+## Banco dedicado
+
+| Item | Valor |
+| ---- | ----- |
+| Host | `{{db_host}}` |
+| Banco | `{{db_name}}` |
+| Usuário | `{{db_username}}` |
+| Senha | `{{db_password}}` |
+
+Conexão PDO:
+
+```php
+$dsn = 'mysql:host={{db_host}};dbname={{db_name}};charset=utf8mb4';
+$pdo = new PDO($dsn, '{{db_username}}', '{{db_password}}');
+```
+
+---
+
+## Funções utilitárias (`helpers.php`)
+
+| Função | Descrição |
+| ------ | --------- |
+| `api_curl_post(array $payload = [])` | Chamada POST para `{{endpoint}}`, preenchendo `id`, `nonce` e timestamp automaticamente. |
+| `api_curl_get(array $query = [])` | Chamada GET para `{{endpoint}}`. |
+| `api_call_route(string $rota, array $payload = [], string $method = 'POST')` | Chama rotas internas (`{{base_url}}/rota`). |
+| `api_encrypt(string $texto)` / `api_decrypt(string $cipher)` | Criptografia simétrica (AES-256-CBC) usando o secret acima. |
+| `api_base64_encode/decode` | Wrappers úteis para conteúdo binário. |
+| `api_response(array $dados, int $status = 200)` | Retorna JSON usando o helper do Laravel. |
+
+---
+
+## Exemplo PHP (helpers)
+
+```php
+require __DIR__.'/helpers.php';
+
+$response = api_curl_post([
+    'action' => 'ping',
+    'payload' => ['message' => 'Hello World'],
+]);
+
+dd($response);
+```
+
+### CLI
+
+```
+php client-example.php
+```
+
+---
+
+## Exemplo JavaScript (fetch)
+
+```js
+fetch('{{endpoint}}', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-KEY': '{{api_secret}}'
+  },
+  body: JSON.stringify({
+    id: {{system_id}},
+    action: 'ping',
+    payload: { message: 'Hello World' }
+  })
+})
+  .then(resp => resp.json())
+  .then(console.log)
+  .catch(console.error);
+```
+
+---
+
+## Personalização
+
+- Atualize `start.php` para validar autenticação, consultar banco, integrar com outros serviços etc.
+- Use as funções prontas em `helpers.php` ou adicione novas utilidades.
+- Compartilhe este README com quem precisa consumir a API.
+- Para acessar o banco diretamente fora do Laravel, utilize as credenciais acima ou o helper `api_db()`.
+
+> Toda requisição enviada para `POST /api/dinamic-api` deve incluir o campo `"id": {{system_id}}`. Sem esse campo o roteador dinâmico não encontra este sistema.
+

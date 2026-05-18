@@ -1,0 +1,66 @@
+# ─── Dependências & build ───
+/node_modules
+/vendor
+/public/build
+/public/hot
+
+# ─── Segredos & ambiente ───
+.env
+.env.*
+!.env.example
+
+# ─── PHP / Laravel ───
+/storage/*.key
+/.phpunit.cache
+.phpunit.result.cache
+/auth.json
+Homestead.json
+Homestead.yaml
+
+# ─── IDE & ferramentas locais ───
+/.fleet
+/.idea
+/.vscode
+.cursor/
+
+# ─── Logs npm/yarn ───
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── Symlink Laravel ───
+/public/storage
+
+# ─── Storage (runtime, uploads, cache) ───
+/storage/framework/cache/data/*
+!/storage/framework/cache/data/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
+/storage/framework/testing/*
+!/storage/framework/testing/.gitignore
+/storage/logs/*
+!/storage/logs/.gitignore
+/storage/app/public/*
+!/storage/app/public/.gitignore
+/storage/workerman/
+
+# ─── Workerman (local) ───
+workerman.log
+workerman.*.pid
+*.pid
+
+# ─── SO & metadados Windows (WSL) ───
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
+**/*:Zone.Identifier
+*.swp
+*.swo
+
+# ─── Arquivos grandes / backups locais ───
+*.zip
+*.tar.gz
+*.sql
+*.dump

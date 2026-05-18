@@ -1,0 +1,40 @@
+<h2>Bem-vindo à API {{system_name}}</h2>
+<p><strong>Endpoint:</strong> <code>POST {{endpoint}}</code></p>
+<p><strong>Headers padrão:</strong> <code>Content-Type: application/json</code> e <code>X-API-KEY</code> com o segredo do README.</p>
+
+<h3>Requisição mínima</h3>
+<pre><code class="language-json">{
+  "id": {{system_id}},
+  "action": "ping"
+}</code></pre>
+
+<h3>Snippets úteis</h3>
+<pre><code class="language-php">require storage_path('app/sistemas/{{system_id}}/helpers.php');
+
+$response = api_curl_post([
+    'action' => 'ping',
+    'payload' => ['message' => 'Hello World'],
+]);
+
+dd($response);</code></pre>
+
+<pre><code class="language-js">fetch('{{endpoint}}', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-KEY': '...'
+  },
+  body: JSON.stringify({ id: {{system_id}}, action: 'ping' })
+})
+.then(r => r.json())
+.then(console.log);</code></pre>
+
+<p>Teste rápido no servidor: <code>php storage/app/sistemas/{{system_id}}/chamada.php</code></p>
+
+<h3>Próximos passos</h3>
+<ul>
+  <li>Edite <code>storage/app/sistemas/{{system_id}}/start.php</code> e utilize as funções de <code>helpers.php</code>.</li>
+  <li>Atualize esta página com detalhes específicos da API (parametrizações, exemplos avançados, etc.).</li>
+  <li>Use <code>client-example.php</code> para testar rapidamente via CLI.</li>
+</ul>
+

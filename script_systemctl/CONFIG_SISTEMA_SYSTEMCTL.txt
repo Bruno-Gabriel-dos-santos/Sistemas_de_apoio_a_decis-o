@@ -1,0 +1,81 @@
+Guia de configuração dos serviços systemd
+======================================
+
+1. Estrutura alvo
+   - Código do sistema: /var/www/Sitemas
+   - Scripts systemctl: /var/www/Sitemas/script_systemctl
+   - Dentro dessa pasta devem existir:
+       run-websocket-worker.sh
+       run-central-writer.sh
+       run-ttyd.sh
+       websocket-worker@.service
+       central-writer.service
+       ttyd.service
+
+   Caso ainda esteja trabalhando no diretório em /home/bruno/..., copie tudo:
+       sudo mkdir -p /var/www/Sitemas
+       sudo rsync -av /home/bruno/Sistemas_De_Apoio/Sistemas_de_Apoio_10/ /var/www/Sitemas/
+       sudo chown -R bruno:bruno /var/www/Sitemas
+   Os scripts tentam usar /var/www/Sitemas automaticamente e caem para o caminho
+   antigo apenas se o diretório novo não existir.
+
+2. Ajustes opcionais
+   - Para apontar explicitamente o diretório: Environment=APP_ROOT=/caminho/do/projeto
+   - Para o ttyd, personalize:
+       Environment=TTYD_PORT=7681
+       Environment=TTYD_CREDENTIAL=usuario:senha
+       Environment=TTYD_SSL_CERT=/etc/ssl/certs/ssl-cert.pem
+       Environment=TTYD_SSL_KEY=/etc/ssl/private/ssl-cert.key
+
+3. Instalação dos services (após copiar para /var/www/Sitemas)
+   sudo cp /var/www/Sitemas/script_systemctl/websocket-worker@.service /etc/systemd/system/
+   sudo cp /var/www/Sitemas/script_systemctl/central-writer.service /etc/systemd/system/
+   sudo cp /var/www/Sitemas/script_systemctl/ttyd.service /etc/systemd/system/
+   sudo systemctl daemon-reload
+
+4. Habilitar services no boot (ajuste as portas conforme necessário)
+   sudo systemctl enable --now websocket-worker@20001.service
+   sudo systemctl enable --now websocket-worker@20010.service
+   sudo systemctl enable --now websocket-worker@20020.service
+   sudo systemctl enable --now websocket-worker@20040.service
+   sudo systemctl enable --now central-writer.service
+   sudo systemctl enable --now ttyd.service
+
+5. Principais comandos úteis
+   - Verificar status:
+       sudo systemctl status websocket-worker@20001
+   - Logs em tempo real:
+       sudo journalctl -u websocket-worker@20001 -f
+   - Reiniciar após alterações:
+       sudo systemctl restart websocket-worker@20001
+   - Desabilitar/retirar do boot:
+       sudo systemctl disable --now websocket-worker@20020
+   - Conferir portas abertas:
+       sudo ss -ltnp | grep 2000
+
+6. Após editar scripts/unidades
+   a) Editar arquivos em /var/www/Sitemas/script_systemctl
+   b) Reaplicar permissões se preciso:
+       sudo chmod +x <caminho>/script_systemctl/*.sh
+   c) Recarregar o systemd:
+       sudo systemctl daemon-reload
+   d) Reiniciar os serviços afetados:
+       sudo systemctl restart <serviço>
+
+7. Checklist rápido para novos servidores
+   [ ] Projeto copiado para /var/www/Sitemas
+   [ ] PHP/Composer instalados e artisan funcionando
+   [ ] ttyd instalado (opcional)
+   [ ] Pasta script_systemctl copiada e com permissão de leitura/execução
+   [ ] Services copiados para /etc/systemd/system
+   [ ] systemctl daemon-reload executado
+   [ ] Services enable --now feitos para todos os componentes
+
+Seguindo este guia, os workers, o writer central e o ttyd
+iniciarão automaticamente após cada boot.
+
+
+
+
+
+
